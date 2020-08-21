@@ -1,0 +1,145 @@
+--- a/setserial.c	2020-08-20 11:57:25.976828659 +0200
++++ b/setserial.c	2020-08-20 17:34:35.583698438 +0200
+@@ -1,4 +1,6 @@
+ /* setserial.c - get/set Linux serial port info - rick sladkey */
++/* modified to do delete some whitespaces and fix many Compiler  Warnings,
++   Stephan Kleinesudeik, stephan@verdandi-ntp.de || 20.08.2020 */
+ /* modified to do work again and added setting fast serial speeds,
+    Michael K. Johnson, johnsonm@stolaf.edu */
+ /*
+@@ -11,6 +13,8 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
+ #include <fcntl.h>
+ #include <termios.h>
+ #include <string.h>
+@@ -42,19 +46,19 @@
+ 	char *name;
+ } serial_type_tbl[] = {
+ 	PORT_UNKNOWN,	"unknown",
+-	PORT_8250,	"8250",
+-	PORT_16450,	"16450",
+-	PORT_16550,	"16550",
++	PORT_8250,      "8250",
++	PORT_16450,     "16450",
++	PORT_16550,     "16550",
+ 	PORT_16550A,	"16550A",
+ 	PORT_CIRRUS,	"Cirrus",
+-	PORT_16650,	"16650",
++	PORT_16650,     "16650",
+ 	PORT_16650V2, 	"16650V2",
+-	PORT_16750,	"16750",
++	PORT_16750,     "16750",
+ 	PORT_16C950,	"16950/954",
+ 	PORT_16C950,	"16950",
+ 	PORT_16C950,	"16954",
+-	PORT_16654,	"16654",
+-	PORT_16850,	"16850",
++	PORT_16654,     "16654",
++	PORT_16850,     "16850",
+ 	PORT_UNKNOWN,	"none",
+ 	-1,		NULL
+ };
+@@ -95,7 +99,7 @@
+ 	CMD_FLAG,	"spd_shi",	ASYNC_SPD_SHI,	ASYNC_SPD_MASK,	0, 0,
+ 	CMD_FLAG,	"spd_warp",	ASYNC_SPD_WARP,	ASYNC_SPD_MASK,	0, 0,
+ 	CMD_FLAG,	"spd_cust",	ASYNC_SPD_CUST,	ASYNC_SPD_MASK,	0, 0,
+-	
++
+ 	CMD_FLAG, 	"SAK", 		ASYNC_SAK, 	ASYNC_SAK, 	0, FLAG_CAN_INVERT,
+ 	CMD_FLAG,	"Fourport",	ASYNC_FOURPORT, ASYNC_FOURPORT,	0, FLAG_CAN_INVERT,
+ 	CMD_FLAG,	"hup_notify",	ASYNC_HUP_NOTIFY, ASYNC_HUP_NOTIFY, 0, FLAG_CAN_INVERT,
+@@ -128,7 +132,7 @@
+ #endif
+ 	0,		0,		0,		0,		0, 0,
+ };
+-	
++
+ char *serial_type(int id)
+ {
+ 	int i;
+@@ -173,7 +177,7 @@
+ 	int	first = 1;
+ 
+ 	flags = serinfo->flags;
+-	
++
+ 	for (p = flag_type_tbl; p->name; p++) {
+ 		if (p->cmd != CMD_FLAG)
+ 			continue;
+@@ -193,7 +197,7 @@
+ 			printf("%s", p->name);
+ 		}
+ 	}
+-	
++
+ 	if (!first)
+ 		printf("%s", postfix);
+ }
+@@ -209,7 +213,7 @@
+ 	if (!multi.port1 && !multi.port2 &&
+ 	    !multi.port3 && !multi.port4 && !multi.port_monitor)
+ 		return;
+-	
++
+ 	printf("%s", device);
+ 	if (multi.port_monitor)
+ 		printf(" port_monitor 0x%x", multi.port_monitor);
+@@ -481,7 +485,6 @@
+ 	int	fd;
+ 	int	do_invert = 0;
+ 	char	*word;
+-	
+ 
+ 	if ((fd = open(device, O_RDWR|O_NONBLOCK)) < 0) {
+ 		if (verbosity==0 && errno==ENOENT)
+@@ -622,7 +625,7 @@
+ 	int	fd;
+ 	int	i, mask;
+ 	int	wild_mask = -1;
+-	
++
+ 	if ((fd = open(device, O_RDWR|O_NONBLOCK)) < 0) {
+ 		perror(device);
+ 		exit(1);
+@@ -656,13 +659,13 @@
+ {
+ 	fprintf(stderr, "%s\n\n", version_str);
+ 	fprintf(stderr,
+-		"usage:\t %s serial-device -abqvVWz [cmd1 [arg]] ... \n", 
++		"usage:\t %s serial-device -abqvVWz [cmd1 [arg]] ... \n",
+ 		progname);
+ 	fprintf(stderr, "\t %s -g [-abGv] device1 ...\n\n", progname);
+ 	fprintf(stderr, "Available commands: (* = Takes an argument)\n");
+ 	fprintf(stderr, "\t\t(^ = can be preceded by a '^' to turn off the option)\n");
+-fprintf(stderr, "\t* port\t\tset the I/O port\n");
+-	fprintf(stderr, "\t* irq\t\tset the interrupt\n");	
++    fprintf(stderr, "\t* port\t\tset the I/O port\n");
++	fprintf(stderr, "\t* irq\t\tset the interrupt\n");
+ 	fprintf(stderr, "\t* uart\t\tset UART type (none, 8250, 16450, 16550, 16550A,\n");
+ 	fprintf(stderr, "\t\t\t16650, 16650V2, 16750, 16850, 16950, 16954)\n");
+ 	fprintf(stderr, "\t* baud_base\tset base baud rate (CLOCK_FREQ / 16)\n");
+@@ -714,13 +717,13 @@
+ 	exit(1);
+ }
+ 
+-main(int argc, char **argv)
++int main(int argc, char **argv)
+ {
+ 	int	get_flag = 0, wild_intr_flag = 0;
+ 	int	c;
+ 	extern int optind;
+ 	extern char *optarg;
+-	
++
+ 	progname = argv[0];
+ 	if (argc == 1)
+ 		usage();
+@@ -775,4 +778,3 @@
+ 		set_serial(argv[optind], argv+optind+1);
+ 	exit(0);
+ }
+-
