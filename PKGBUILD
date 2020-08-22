@@ -1,5 +1,6 @@
-# Maintainer: Stephan Kleinesudeik <stephan@verdandi-ntp.de>
-# Contributor:
+# Maintainer: Brian Bidulock <bidulock@openss7.org>
+# Contributor: Giovanni Scafora <giovanni@archlinux.org>
+# Contributor: Aurelien Foret <orelien@chez.com>
 
 pkgname=setserial
 pkgver=2.17
